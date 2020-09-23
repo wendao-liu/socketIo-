@@ -1,20 +1,35 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http)
+'use strict';
+
+let express = require('express');
+let path = require('path');
+let { createServer } = require('http');
+
+let WebSocket = require('ws');
+
+let app = express();
+// app.use(express.static(path.join(__dirname, '/index.html')));
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 })
 
-io.on('connection', socket => {
-  // 响应用户发送的信息
-  socket.on('chat message', function (msg) {
-    console.log('chat message' + msg)
-    io.emit('chat message', msg)
-  })
+let server = createServer(app);
+let wss = new WebSocket.Server({ server });
+let wsArr = [];
+wss.on('connection', function connection(ws) {
+  wsArr.push(ws);
+  console.log('connection~~', '成功连接个数', wsArr.length)
+  ws.on('message', function incoming(message) {
+    wsArr.forEach((wsItem) => {
+      wsItem.send(message);
+    })
+  });
+  //关闭websocket触发
+  // ws.on('close', function () {
+  //   console.log('stopping client interval');
+  // });
 });
 
-
-http.listen(3001, () => {
-  console.log('打开3001端口')
-})
+server.listen(8080, function () {
+  console.log('Listening on http://localhost:8080');
+});

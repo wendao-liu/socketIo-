@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,17 +11,37 @@
 
 <script>
   window.onload = () => {
-    const socket = io('ws://localhost:4000');
-    test = () => {
-      socket.emit('chat message', Math.random()*1000);
-    }
+    let count = 0;
+    let ws = new WebSocket(`ws://${location.host}`);
+    //oTest.appendChild(newNode);
+    ws.onopen = function (evt) {
+      console.log("Connection open ...");
+      test = () => {
+        // 发送给服务端
+        count += 1;
+        ws.send(count);
+      }
 
-    socket.on('chat message', function(msg) {
-      console.log(msg,'msg');
-    })
+      // 接收服务端发送信息
+      ws.onmessage = function (event) {
+        let {
+          data
+        } = event || {}
+        let listNode = document.getElementById('list');
+        let newNode = document.createElement("li");
+        newNode.innerText = data;
+        console.log(listNode, 'newNode')
+        listNode.appendChild(newNode);
+        listNode = null;
+        newNode = null;
+      };
+    };
   }
 </script>
+
 <body>
   <div onclick="test()">123</div>
+  <ul id='list'></ul>
 </body>
+
 </html>

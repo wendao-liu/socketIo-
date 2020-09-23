@@ -10,9 +10,9 @@
 
 <script>
   window.onload = () => {
-    const socket = io();
+    const socket = io('ws://localhost:4000');
     test = () => {
-      socket.emit('chat message', 123);
+      socket.emit('chat message', Math.random()*1000);
     }
 
     socket.on('chat message', function(msg) {
